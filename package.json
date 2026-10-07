@@ -1,0 +1,9 @@
+{
+  "name": "examnexus-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ExamNexus - Enterprise Online Examination Portal",
+  "scripts": {
+    "build": "echo 'Frontend ready for Vercel deployment'"
+  }
+}

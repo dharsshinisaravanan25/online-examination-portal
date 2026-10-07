@@ -32,7 +32,555 @@ function playWarningBeep() {
   }
 }
 
-// API Helper
+// Standalone / Offline Mock Store for Static Vercel Hosting
+const MOCK_STORAGE_KEY = 'examnexus_mock_db';
+
+function getMockDb() {
+  const cached = localStorage.getItem(MOCK_STORAGE_KEY);
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) {}
+  }
+  const initialDb = {
+    users: [
+      { id: 1, username: 'admin', fullName: 'System Administrator', role: 'ADMIN', password: 'admin123' },
+      { id: 2, username: 'student', fullName: 'Alex Rivera', role: 'STUDENT', password: 'student123' }
+    ],
+    exams: [
+      {
+        id: 1,
+        title: "Java 21 & Spring Boot Full-Stack Certification",
+        description: "Comprehensive assessment covering Java 21 LTS modern features (virtual threads, records, pattern matching), Spring Data JPA, Spring Security, and RESTful architectures.",
+        category: "Java & Spring",
+        durationMinutes: 15,
+        totalMarks: 50,
+        passingMarks: 30,
+        negativeMarkingPenalty: 0.5,
+        shuffleQuestions: false,
+        published: true,
+        questionCount: 5
+      },
+      {
+        id: 2,
+        title: "Algorithmic Problem Solving & Data Structures",
+        description: "Rigorous evaluation of time/space complexity analysis, tree traversals, dynamic programming paradigms, graph algorithms, and asymptotic bounds.",
+        category: "Algorithms",
+        durationMinutes: 20,
+        totalMarks: 50,
+        passingMarks: 25,
+        negativeMarkingPenalty: 1.0,
+        shuffleQuestions: false,
+        published: true,
+        questionCount: 5
+      },
+      {
+        id: 3,
+        title: "Modern Cloud & Database Systems Architecture",
+        description: "Evaluation of ACID vs BASE guarantees, relational schema design, distributed indexing strategies, query execution planners, and caching topologies.",
+        category: "Database Systems",
+        durationMinutes: 15,
+        totalMarks: 50,
+        passingMarks: 30,
+        negativeMarkingPenalty: 0.5,
+        shuffleQuestions: false,
+        published: true,
+        questionCount: 4
+      }
+    ],
+    questions: {
+      1: [
+        {
+          id: 101,
+          questionText: "Which feature introduced in Java 21 provides lightweight threads that drastically reduce the overhead of writing high-throughput concurrent applications?",
+          optionA: "Platform Threads",
+          optionB: "Virtual Threads (Project Loom)",
+          optionC: "ForkJoin Pools",
+          optionD: "Goroutines",
+          correctOption: "B",
+          explanation: "Virtual Threads, delivered as part of Project Loom in Java 21, allow millions of lightweight threads to run concurrently on standard JVM hardware.",
+          marks: 10,
+          difficulty: "MEDIUM"
+        },
+        {
+          id: 102,
+          questionText: "What is the primary purpose of the '@Transactional' annotation in Spring Framework?",
+          optionA: "To encrypt network traffic between client and server",
+          optionB: "To automatically manage database transaction boundaries (commit / rollback)",
+          optionC: "To compile Java classes into native binaries",
+          optionD: "To schedule recurring cron background jobs",
+          correctOption: "B",
+          explanation: "@Transactional automatically begins, commits on success, or rolls back on runtime exceptions for database operations.",
+          marks: 10,
+          difficulty: "EASY"
+        },
+        {
+          id: 103,
+          questionText: "In Java 17+, how do you declare an immutable data carrier class with automatic equals, hashCode, and toString methods?",
+          optionA: "public sealed class Data {}",
+          optionB: "public record Data(String name, int value) {}",
+          optionC: "public dynamic class Data {}",
+          optionD: "public abstract struct Data {}",
+          correctOption: "B",
+          explanation: "Records in Java provide a concise syntax for declaring shallowly immutable transparent holders for shallow data.",
+          marks: 10,
+          difficulty: "EASY"
+        },
+        {
+          id: 104,
+          questionText: "What does the Spring Boot starter 'spring-boot-starter-data-jpa' provide out-of-the-box?",
+          optionA: "Direct raw socket networking",
+          optionB: "Hibernate ORM, Spring Data repositories, and HikariCP connection pooling",
+          optionC: "React.js and Vue.js compilation toolchains",
+          optionD: "Embedded Redis distributed cache only",
+          correctOption: "B",
+          explanation: "Spring Data JPA starter bundles Hibernate, Spring ORM, Spring Data repositories, and HikariCP connection pool.",
+          marks: 10,
+          difficulty: "MEDIUM"
+        },
+        {
+          id: 105,
+          questionText: "Which HTTP status code should a well-designed REST API return when a resource is successfully created?",
+          optionA: "200 OK",
+          optionB: "201 Created",
+          optionC: "204 No Content",
+          optionD: "202 Accepted",
+          correctOption: "B",
+          explanation: "HTTP 201 Created signifies that the request succeeded and led to the creation of a new resource on the server.",
+          marks: 10,
+          difficulty: "EASY"
+        }
+      ],
+      2: [
+        {
+          id: 201,
+          questionText: "What is the average and worst-case time complexity of searching in a balanced Binary Search Tree (AVL / Red-Black Tree)?",
+          optionA: "Average: O(1), Worst: O(n)",
+          optionB: "Average: O(log n), Worst: O(log n)",
+          optionC: "Average: O(n), Worst: O(n^2)",
+          optionD: "Average: O(log n), Worst: O(n)",
+          correctOption: "B",
+          explanation: "Self-balancing BSTs guarantee O(log n) height, yielding O(log n) worst and average search time.",
+          marks: 10,
+          difficulty: "EASY"
+        },
+        {
+          id: 202,
+          questionText: "Which algorithm is best suited for finding the shortest path in a graph with non-negative edge weights?",
+          optionA: "Bellman-Ford Algorithm",
+          optionB: "Dijkstra's Algorithm",
+          optionC: "Depth First Search",
+          optionD: "Floyd-Warshall Algorithm for all pairs only",
+          correctOption: "B",
+          explanation: "Dijkstra's algorithm efficiently computes single-source shortest paths in graphs with non-negative weights using a priority queue.",
+          marks: 10,
+          difficulty: "MEDIUM"
+        },
+        {
+          id: 203,
+          questionText: "What data structure is used to implement Breadth-First Search (BFS) in a graph?",
+          optionA: "Stack (LIFO)",
+          optionB: "Queue (FIFO)",
+          optionC: "Priority Queue",
+          optionD: "Hash Set",
+          correctOption: "B",
+          explanation: "BFS explores neighbors level-by-level using a First-In First-Out Queue.",
+          marks: 10,
+          difficulty: "EASY"
+        },
+        {
+          id: 204,
+          questionText: "Which sorting algorithm guarantees O(n log n) worst-case time complexity and is stable?",
+          optionA: "Quick Sort",
+          optionB: "Merge Sort",
+          optionC: "Heap Sort",
+          optionD: "Selection Sort",
+          correctOption: "B",
+          explanation: "Merge sort provides guaranteed O(n log n) time in all cases and preserves the relative order of equal elements (stable).",
+          marks: 10,
+          difficulty: "MEDIUM"
+        },
+        {
+          id: 205,
+          questionText: "In Dynamic Programming, what are the two essential characteristics a problem must possess?",
+          optionA: "Linear structure and sorting property",
+          optionB: "Optimal substructure and overlapping subproblems",
+          optionC: "Greedy choice property and divide-and-conquer",
+          optionD: "Deterministic state machine and hashing",
+          correctOption: "B",
+          explanation: "Dynamic programming applies when subproblems overlap and optimal solutions to subproblems combine into an overall optimal solution.",
+          marks: 10,
+          difficulty: "HARD"
+        }
+      ],
+      3: [
+        {
+          id: 301,
+          questionText: "In ACID transaction properties, which property ensures that transactions that are committed survive system crashes?",
+          optionA: "Atomicity",
+          optionB: "Consistency",
+          optionC: "Isolation",
+          optionD: "Durability",
+          correctOption: "D",
+          explanation: "Durability guarantees that once a transaction commits, its effects persist even in the event of power loss or crash.",
+          marks: 12.5,
+          difficulty: "EASY"
+        },
+        {
+          id: 302,
+          questionText: "What type of database index is typically used by relational databases to provide logarithmic O(log n) range queries and lookups?",
+          optionA: "Hash Index",
+          optionB: "B+ Tree Index",
+          optionC: "Bitmap Index",
+          optionD: "Spatial R-Tree Index",
+          correctOption: "B",
+          explanation: "B+ Trees maintain balanced tree depth with linked leaf pages, making them ideal for point lookups and range scans on disk storage.",
+          marks: 12.5,
+          difficulty: "MEDIUM"
+        },
+        {
+          id: 303,
+          questionText: "Which normal form eliminates partial functional dependencies on a composite primary key?",
+          optionA: "First Normal Form (1NF)",
+          optionB: "Second Normal Form (2NF)",
+          optionC: "Third Normal Form (3NF)",
+          optionD: "Boyce-Codd Normal Form (BCNF)",
+          correctOption: "B",
+          explanation: "2NF requires the relation to be in 1NF and every non-prime attribute to be fully functionally dependent on candidate keys.",
+          marks: 12.5,
+          difficulty: "MEDIUM"
+        },
+        {
+          id: 304,
+          questionText: "What is the primary difference between pessimistic and optimistic concurrency control?",
+          optionA: "Pessimistic locking relies on machine learning predictors",
+          optionB: "Pessimistic locks data upfront before modification; optimistic checks a version column before committing",
+          optionC: "Optimistic locking only works in NoSQL databases",
+          optionD: "Pessimistic locking discards all transaction rollbacks",
+          correctOption: "B",
+          explanation: "Optimistic locking verifies no conflicting change occurred (e.g. @Version) without holding heavy database row locks.",
+          marks: 12.5,
+          difficulty: "HARD"
+        }
+      ]
+    },
+    attempts: [],
+    activeSessions: {}
+  };
+  saveMockDb(initialDb);
+  return initialDb;
+}
+
+function saveMockDb(db) {
+  try {
+    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(db));
+  } catch (e) {}
+}
+
+async function handleMockApi(endpoint, options = {}) {
+  await new Promise(r => setTimeout(r, 60)); // Micro-latency to mimic real server
+  const db = getMockDb();
+  const body = options.body ? JSON.parse(options.body) : {};
+
+  // Auth: Login
+  if (endpoint === '/api/auth/login') {
+    const user = db.users.find(u => u.username.toLowerCase() === (body.username || '').toLowerCase());
+    if (!user || user.password !== body.password) {
+      throw new Error('Invalid username or password');
+    }
+    return {
+      id: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      email: user.email || `${user.username}@examnexus.io`,
+      role: user.role
+    };
+  }
+
+  // Auth: Register
+  if (endpoint === '/api/auth/register') {
+    if (db.users.some(u => u.username.toLowerCase() === (body.username || '').toLowerCase())) {
+      throw new Error('Username already exists');
+    }
+    const newUser = {
+      id: Date.now(),
+      username: body.username,
+      fullName: body.fullName || body.username,
+      email: body.email,
+      role: body.role || 'STUDENT',
+      password: body.password
+    };
+    db.users.push(newUser);
+    saveMockDb(db);
+    return {
+      id: newUser.id,
+      username: newUser.username,
+      fullName: newUser.fullName,
+      email: newUser.email,
+      role: newUser.role
+    };
+  }
+
+  // Auth: Logout
+  if (endpoint === '/api/auth/logout') {
+    return { success: true };
+  }
+
+  // Exams: List
+  if (endpoint === '/api/exams' || endpoint === '/api/exams?all=true') {
+    return db.exams;
+  }
+
+  // Single Exam by ID
+  const examMatch = endpoint.match(/^\/api\/exams\/(\d+)$/);
+  if (examMatch) {
+    const eId = parseInt(examMatch[1]);
+    const exam = db.exams.find(e => e.id === eId);
+    if (!exam) throw new Error('Exam not found');
+    return exam;
+  }
+
+  // Exam Questions (Admin Question Bank)
+  const qBankMatch = endpoint.match(/^\/api\/exams\/(\d+)\/questions$/);
+  if (qBankMatch) {
+    const eId = parseInt(qBankMatch[1]);
+    return db.questions[eId] || [];
+  }
+
+  // Student Attempts
+  if (endpoint === '/api/session/my-attempts') {
+    const uId = currentUser ? currentUser.id : 2;
+    return db.attempts.filter(a => a.userId === uId);
+  }
+
+  // Start Exam Session
+  const startMatch = endpoint.match(/^\/api\/session\/start\/(\d+)$/);
+  if (startMatch) {
+    const eId = parseInt(startMatch[1]);
+    const exam = db.exams.find(e => e.id === eId);
+    if (!exam) throw new Error('Exam not found');
+    const attemptId = Date.now();
+    const qList = (db.questions[eId] || []).map((q, idx) => ({
+      id: q.id,
+      questionText: q.questionText,
+      optionA: q.optionA,
+      optionB: q.optionB,
+      optionC: q.optionC,
+      optionD: q.optionD,
+      marks: q.marks,
+      difficulty: q.difficulty,
+      orderIndex: idx + 1,
+      selectedOption: null,
+      markedForReview: false
+    }));
+
+    const session = {
+      attemptId,
+      examId: exam.id,
+      examTitle: exam.title,
+      category: exam.category,
+      durationMinutes: exam.durationMinutes,
+      totalMarks: exam.totalMarks,
+      passingMarks: exam.passingMarks,
+      negativeMarkingPenalty: exam.negativeMarkingPenalty,
+      strikes: 0,
+      startedAt: new Date().toISOString(),
+      remainingSeconds: exam.durationMinutes * 60,
+      questions: qList
+    };
+
+    db.activeSessions[attemptId] = session;
+    saveMockDb(db);
+    return session;
+  }
+
+  // Save Answer
+  if (endpoint === '/api/session/save-answer') {
+    const session = db.activeSessions[body.attemptId];
+    if (session) {
+      const q = session.questions.find(item => item.id === body.questionId);
+      if (q) {
+        if (body.selectedOption !== undefined) q.selectedOption = body.selectedOption;
+        if (body.markedForReview !== undefined) q.markedForReview = body.markedForReview;
+        saveMockDb(db);
+      }
+    }
+    return { success: true };
+  }
+
+  // Violation Strikes
+  if (endpoint === '/api/session/violation') {
+    const session = db.activeSessions[body.attemptId];
+    if (session) {
+      session.strikes = (session.strikes || 0) + 1;
+      const disqualified = session.strikes >= 3;
+      saveMockDb(db);
+      return { strikes: session.strikes, disqualified, reason: body.reason };
+    }
+    return { strikes: 1, disqualified: false };
+  }
+
+  // Submit Exam
+  if (endpoint === '/api/session/submit') {
+    const session = db.activeSessions[body.attemptId];
+    const exam = db.exams.find(e => e.id === (session ? session.examId : 1));
+    const allQuestions = db.questions[exam.id] || [];
+
+    let score = 0;
+    let correct = 0;
+    let incorrect = 0;
+    let unattempted = 0;
+
+    const breakdown = (session ? session.questions : []).map(sq => {
+      const orig = allQuestions.find(o => o.id === sq.id) || {};
+      const isAns = !!sq.selectedOption;
+      let status = 'UNATTEMPTED';
+      let marksAwarded = 0;
+
+      if (!isAns) {
+        unattempted++;
+      } else if (sq.selectedOption === orig.correctOption) {
+        correct++;
+        status = 'CORRECT';
+        marksAwarded = orig.marks || 5;
+        score += marksAwarded;
+      } else {
+        incorrect++;
+        status = 'INCORRECT';
+        const penalty = exam.negativeMarkingPenalty || 0;
+        marksAwarded = -penalty;
+        score -= penalty;
+      }
+
+      return {
+        questionId: sq.id,
+        questionText: sq.questionText,
+        selectedOption: sq.selectedOption,
+        correctOption: orig.correctOption,
+        isCorrect: sq.selectedOption === orig.correctOption,
+        marksAwarded,
+        explanation: orig.explanation || 'Detailed solution explanation.',
+        status
+      };
+    });
+
+    const isDisqualified = body.disqualified || (session && session.strikes >= 3);
+    const passed = !isDisqualified && score >= exam.passingMarks;
+    const finalScore = Math.max(0, Math.round(score * 10) / 10);
+    const percentage = Math.min(100, Math.round((finalScore / exam.totalMarks) * 100));
+
+    const result = {
+      attemptId: body.attemptId,
+      examId: exam.id,
+      examTitle: exam.title,
+      candidateName: currentUser ? currentUser.fullName : 'Alex Rivera',
+      totalMarks: exam.totalMarks,
+      passingMarks: exam.passingMarks,
+      scoreObtained: finalScore,
+      percentage,
+      status: isDisqualified ? 'DISQUALIFIED_CHEATING' : (passed ? 'PASSED' : 'FAILED'),
+      correctCount: correct,
+      incorrectCount: incorrect,
+      unattemptedCount: unattempted,
+      proctorStrikes: session ? session.strikes : (body.disqualified ? 3 : 0),
+      submittedAt: new Date().toISOString(),
+      questionBreakdown: breakdown
+    };
+
+    db.attempts.unshift({
+      id: body.attemptId,
+      userId: currentUser ? currentUser.id : 2,
+      candidateName: result.candidateName,
+      examId: exam.id,
+      examTitle: exam.title,
+      scoreObtained: finalScore,
+      totalMarks: exam.totalMarks,
+      percentage,
+      status: result.status,
+      proctorStrikes: result.proctorStrikes,
+      submittedAt: result.submittedAt,
+      result
+    });
+
+    delete db.activeSessions[body.attemptId];
+    saveMockDb(db);
+    return result;
+  }
+
+  // Attempt Result by ID
+  const resultMatch = endpoint.match(/^\/api\/session\/result\/(\d+)/);
+  if (resultMatch) {
+    const aId = parseInt(resultMatch[1]);
+    const attempt = db.attempts.find(a => a.id === aId);
+    if (attempt && attempt.result) {
+      return attempt.result;
+    }
+    return {
+      attemptId: aId,
+      examId: 1,
+      examTitle: "Java 21 & Spring Boot Full-Stack Certification",
+      candidateName: currentUser ? currentUser.fullName : 'Alex Rivera',
+      totalMarks: 50,
+      passingMarks: 30,
+      scoreObtained: 40,
+      percentage: 80,
+      status: 'PASSED',
+      correctCount: 4,
+      incorrectCount: 1,
+      unattemptedCount: 0,
+      proctorStrikes: 0,
+      submittedAt: new Date().toISOString(),
+      questionBreakdown: []
+    };
+  }
+
+  // Admin: Analytics
+  if (endpoint === '/api/admin/analytics') {
+    const totalExams = db.exams.length;
+    let totalQuestions = 0;
+    Object.values(db.questions).forEach(arr => totalQuestions += arr.length);
+    const totalStudents = db.users.filter(u => u.role === 'STUDENT').length;
+    const totalAttempts = db.attempts.length;
+    const passed = db.attempts.filter(a => a.status === 'PASSED').length;
+    const passPercentage = totalAttempts > 0 ? Math.round((passed / totalAttempts) * 100) : 92.5;
+    return {
+      totalExams,
+      totalQuestions,
+      totalStudents: Math.max(totalStudents, 1),
+      totalAttempts: Math.max(totalAttempts, 1),
+      averageScore: 78.4,
+      passPercentage
+    };
+  }
+
+  // Admin: Submissions
+  if (endpoint === '/api/admin/submissions') {
+    if (db.attempts.length === 0) {
+      return [
+        {
+          id: 1001,
+          candidateName: "Alex Rivera",
+          examTitle: "Java 21 & Spring Boot Full-Stack Certification",
+          scoreObtained: 45,
+          totalMarks: 50,
+          percentage: 90,
+          status: "PASSED",
+          proctorStrikes: 0,
+          submittedAt: new Date().toISOString()
+        }
+      ];
+    }
+    return db.attempts;
+  }
+
+  // Question CRUD (Admin Question Bank)
+  const qEditMatch = endpoint.match(/^\/api\/exams\/questions\/(\d+)$/);
+  if (qEditMatch) {
+    return { success: true };
+  }
+
+  return { success: true };
+}
+
+// API Helper with Automatic Standalone Vercel Mock Fallback
 async function apiCall(endpoint, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
@@ -43,17 +591,35 @@ async function apiCall(endpoint, options = {}) {
     headers['X-User-Id'] = currentUser.id;
   }
 
-  const response = await fetch(endpoint, {
-    ...options,
-    headers
-  });
+  // 1. Attempt real backend network call first
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const response = await fetch(endpoint, {
+      ...options,
+      headers,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.message || 'API request failed');
+    if (response.ok) {
+      return await response.json().catch(() => ({}));
+    }
+    // If backend returned explicit 400/401/403 validation error, throw it
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 400 || response.status === 401 || response.status === 403) {
+      throw new Error(data.message || 'API request failed');
+    }
+  } catch (err) {
+    if (err.message && (err.message.includes('Invalid') || err.message.includes('exists') || err.message.includes('Password'))) {
+      throw err;
+    }
   }
-  return data;
+
+  // 2. Graceful Standalone Vercel Mock Fallback
+  return handleMockApi(endpoint, options);
 }
+
 
 // Floating Toast Notification System
 function showToast(message, type = 'info') {
